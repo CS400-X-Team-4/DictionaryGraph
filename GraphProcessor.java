@@ -19,6 +19,9 @@ import java.util.Stack;
 //
 // Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
 // Bugs:             no known bugs, but not complete either
+//// Other Source:     (1) Floyd-Warshall algorithm: 
+//                       - https://goo.gl/Pnr7bg (Wikipedia)
+//                       - https://goo.gl/7p6LSL 
 //
 // 2018 Apr 16, 2018 GraphProcessor.java 
 ////////////////////////////80 columns wide //////////////////////////////////
