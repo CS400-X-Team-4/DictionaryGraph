@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Stack;
 
 ////////////////////////////////////////////////////////////////////////////
 // Semester:         CS400 Spring 2018
@@ -55,12 +58,23 @@ public class GraphProcessor {
      * Graph which stores the dictionary words and their associated connections
      */
     private GraphADT<String> graph;
+    Hashtable<String, Integer> vMap;
+    Hashtable<Integer, String> iMap;
+    Integer graphSize;
+    Integer MaxDistance;
+    Integer[][] distanceMatrix;  // store the shortest distance between two vertices
+    Integer[][] predecessor;     // store the predecessor index
     
     /**
      * Constructor for this class. Initializes instances variables to set the starting state of the object
      */
     public GraphProcessor() {
         this.graph = new Graph<>();
+        vMap = new Hashtable<String, Integer>();
+        iMap = new Hashtable<Integer, String>();
+        MaxDistance = Integer.MAX_VALUE;
+        distanceMatrix = new Integer[graphSize][graphSize];
+        predecessor = new Integer[graphSize][graphSize];
     }
     
     /**
@@ -103,8 +117,19 @@ public class GraphProcessor {
      * @return List<String> list of the words
      */
     public List<String> getShortestPath(String word1, String word2) {
-        return null;
-        
+        // Look up the predecessor matrix to find the shortest path
+    	int i = this.vMap.get(word1);
+    	int j = this.vMap.get(word2);
+    	Stack<String> st = new Stack<String>();
+    	List<String> pathList = new ArrayList<String>();
+    	st.add(word2);  // destination
+    	while (predecessor[i][j] != -1) {
+    		j = predecessor[i][j];
+    		String v = this.iMap.get(j);
+    		st.add(v);
+    	}
+    	pathList.add(st.pop());
+        return pathList; 
     }
     
     /**
@@ -127,7 +152,25 @@ public class GraphProcessor {
      * @return Integer distance
      */
     public Integer getShortestDistance(String word1, String word2) {
-        return null;
+        // Look up distanceMatrix to get shortest distance
+    	int i = this.vMap.get(word1);
+    	int j = this.vMap.get(word2);
+        return this.distanceMatrix[i][j];
+    }
+    
+    /**
+     * Get all vertices, and map each vertex to an index
+     */
+    private void buildVerticesMapping() {
+    	Iterable<String> allVertices = this.graph.getAllVertices();
+    	int size = 0;
+    	while ( allVertices.iterator().hasNext() ) {
+    		allVertices.iterator().next();
+    		this.vMap.put(allVertices.iterator().toString(), size);  // [key, index]
+    		this.iMap.put(size, allVertices.iterator().toString());  // [index, key]
+    		size++;
+    	}
+    	this.graphSize = size;
     }
     
     /**
@@ -136,6 +179,44 @@ public class GraphProcessor {
      * Any shortest path algorithm can be used (Djikstra's or Floyd-Warshall recommended).
      */
     public void shortestPathPrecomputation() {
-        
+        // Using Floyd-Warshall algorithm
+    	buildVerticesMapping();
+    	int len = this.graphSize;
+    	
+    	// Set up: d to self is 0, to adjacent vertex is 1, unreachable is infinity
+    	//         pred to self and unreachable is -1, otherwise is i 
+    	for (int i = 0; i < len; i ++) {
+    		for (int j = 0; j < len; j ++) {
+    			if (i == j ) {
+    				distanceMatrix[i][j] = 0;
+    				predecessor[i][j] = -1;
+    			} else if (graph.isAdjacent(this.iMap.get(i), this.iMap.get(j))){
+    				distanceMatrix[i][j] = 1;
+    				distanceMatrix[j][i] = 1;
+    				predecessor[i][j] = i; 
+    			} else { // not adjacent vertex
+    				distanceMatrix[i][j] = MaxDistance;
+    				distanceMatrix[j][i] = MaxDistance;
+    				predecessor[i][j] = -1; 
+    			}
+    		}
+    	}
+    	
+    	// Main loop: if find the shorter path, update d to distanceMatrix and update predecessor
+    	for (int k = 0; k < len; k++) {
+    		for (int i = 0; i < len; i++) {
+    			for (int j = 0; j < len; j++) {
+    				if ((distanceMatrix[i][k] == MaxDistance) 
+    					    || (distanceMatrix[k][j] == MaxDistance)) {
+    					continue;
+    				}
+    				if ((distanceMatrix[i][j] > distanceMatrix[i][k] + distanceMatrix[k][j])
+    						&& (distanceMatrix[i][k] != MaxDistance)) {
+    					distanceMatrix[i][j] = distanceMatrix[i][k] + distanceMatrix[k][j];
+    					predecessor[i][j] = predecessor[k][j];
+    				}
+    			}
+    		}
+    	}
     }
 }
