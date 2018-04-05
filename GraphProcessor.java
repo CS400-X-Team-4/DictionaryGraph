@@ -121,6 +121,7 @@ public class GraphProcessor {
      */
     public List<String> getShortestPath(String word1, String word2) {
         // Look up the predecessor matrix to find the shortest path
+        shortestPathPrecomputation();
     	int i = this.vMap.get(word1);
     	int j = this.vMap.get(word2);
     	Stack<String> st = new Stack<String>();
@@ -156,6 +157,7 @@ public class GraphProcessor {
      */
     public Integer getShortestDistance(String word1, String word2) {
         // Look up distanceMatrix to get shortest distance
+        shortestPathPrecomputation();
     	int i = this.vMap.get(word1);
     	int j = this.vMap.get(word2);
         return this.distanceMatrix[i][j];
