@@ -146,6 +146,7 @@ public class Graph<E> implements GraphADT<E> {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Iterable<E> getNeighbors(E vertex) {
         ArrayList<E> neighbors = new ArrayList<E>();
@@ -160,8 +161,11 @@ public class Graph<E> implements GraphADT<E> {
                 neighbors.add(vertices.get(j));
         }
         E[] n2 = (E[]) neighbors.toArray();
+        neighbors.clear();
         Arrays.sort(n2);
-        neighbors = (ArrayList<E>) Arrays.asList(n2);
+        for (E neighbor : n2) {
+            neighbors.add(neighbor);
+        }
         return neighbors; // Return array in natural order
     }
     
