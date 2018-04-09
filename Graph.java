@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 ////////////////////////////////////////////////////////////////////////////
 // Semester:         CS400 Spring 2018
@@ -154,11 +155,14 @@ public class Graph<E> implements GraphADT<E> {
         // Loop through all vertices to see if they are neighbors
         for (int j = 0; j < vertices.size(); j++) {
             if (i == j) // If same vertex
-                continue;
+                continue; // Not really necessary. No self loops
             if (edges.get(i).get(j)) // If they are adjacent
                 neighbors.add(vertices.get(j));
         }
-        return neighbors; // Return array
+        E[] n2 = (E[]) neighbors.toArray();
+        Arrays.sort(n2);
+        neighbors = (ArrayList<E>) Arrays.asList(n2);
+        return neighbors; // Return array in natural order
     }
     
     /**
