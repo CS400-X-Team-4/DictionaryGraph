@@ -95,6 +95,7 @@ public class WordProcessor {
     }
     
     /**
+     * @Author Collin Dedrick
      * Adjacency between word1 and word2 is defined by:
      * if the difference between word1 and word2 is of
      * 1 char replacement

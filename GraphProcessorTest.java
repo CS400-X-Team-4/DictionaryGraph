@@ -98,6 +98,5 @@ public class GraphProcessorTest {
     @Test
     public final void test() {
         assertEquals("0 != 0", 0, 0);
-        
     }
 }
