@@ -133,17 +133,11 @@ public class WordProcessor {
      *         Whether or not it passes all the tests
      */
     private static boolean isAddition(String word1, String word2) {
-        int charOffset = 0; // Tells us the offset. If > 1, then false
-        // word2 must be one bigger than word1
         for (int i = 0; i < word1.length(); i++) {
-            if (word2.charAt(i + charOffset) != word1.charAt(i)) {
-                if (charOffset++ > 0)
-                    return false; // Had a substitution
-                i--;
-            }
+            if (word2.charAt(i) != word1.charAt(i)) // Always happen once
+                return (word1.equals(word2.substring(0, i) + word2.substring(i + 1))) ? true : false;
         }
-        // If charOffset == 0, added letter must be at the end
-        return true; // Passed all tests
+        return true; // If you go through entire string, addition must be at end
     }
     
     /**
