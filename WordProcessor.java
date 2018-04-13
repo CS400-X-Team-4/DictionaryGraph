@@ -135,7 +135,7 @@ public class WordProcessor {
     private static boolean isAddition(String word1, String word2) {
         for (int i = 0; i < word1.length(); i++) {
             if (word2.charAt(i) != word1.charAt(i)) // Always happen once
-                return (word1.equals(word2.substring(0, i) + word2.substring(i + 1))) ? true : false;
+                return word1.equals(word2.substring(0, i) + word2.substring(i + 1));
         }
         return true; // If you go through entire string, addition must be at end
     }
