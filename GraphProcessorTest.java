@@ -19,6 +19,7 @@ import org.junit.Test;
 //                   GraphProcessor.java
 //                   GraphTest.java
 //                   WordProcessor.java
+//                   GraphProcessorTest.java
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
@@ -29,13 +30,13 @@ import org.junit.Test;
 // Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
 // Bugs:             no known bugs, but not complete either
 //
-// 2018 Apr 16, 2018 GraphTest.java 
+// 2018 Apr 16, 2018 GraphProcessorTest.java 
 ////////////////////////////80 columns wide //////////////////////////////////
 
 /**
- * Junit test class to test class @see Graph that implements @see GraphADT interface
+ * Junit test class to test class @see GraphProcessor
  *
- * @author sapan (sapan@cs.wisc.edu)
+ * @author
  */
 public class GraphProcessorTest {
     
@@ -149,8 +150,20 @@ public class GraphProcessorTest {
     }
     
     @Test
+    public final void popGraph() {
+        gProc.populateGraph(file);
+    }
+    
+    @Test
+    public final void addDup() {
+        gProc.populateGraph(file);
+        gProc.populateGraph(file);
+        
+        assertEquals("Allowed Duplicates", gProc.getShortestPath("at", "at"), null);
+    }
+    
+    @Test
     public final void test() {
-        assertEquals("0 != 0", 0, 0);
         
     }
 }

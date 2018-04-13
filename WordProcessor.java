@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 //                   GraphProcessor.java
 //                   GraphTest.java
 //                   WordProcessor.java
+//                   GraphProcessorTest.java
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
@@ -118,6 +119,7 @@ public class WordProcessor {
         else if (dif == -1)
             return isAddition(word1, word2);
         return false;
+        // return (dif == 1) ? isAddition(word2, word1) : ((dif == 0) ? isSubstitution(word1, word2) : ((dif == -1) ? isAddition(word1, word2) : false));
     }
     
     /**

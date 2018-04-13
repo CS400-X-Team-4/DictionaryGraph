@@ -8,9 +8,10 @@ import java.util.PriorityQueue;
 // Semester:         CS400 Spring 2018
 // PROJECT:          cs400_p3_201801
 // FILES:            Graph.java
-// GraphProcessor.java
-// GraphTest.java
-// WordProcessor.java
+//                   GraphProcessor.java
+//                   GraphTest.java
+//                   WordProcessor.java
+//                   GraphProcessorTest.java
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
