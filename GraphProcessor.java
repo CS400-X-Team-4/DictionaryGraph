@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -203,23 +202,22 @@ public class GraphProcessor {
          * 3. Choose path with smallest weight
          * 4. Repeat until destination is in visited
          */
-        Node curr = new Node(word1, 0);
-        boolean empty = false;
-        List<Node> visited = new ArrayList<Node>(); // Optimal Path
+        Node curr;
+        int pathWeight = 0; // Starting path weight
         // Checks if already visited
         boolean[] inPos = new boolean[vertices.size()]; // Integer Position
-        Arrays.fill(inPos, false);
         // Gets the node with the highest priority
         PriorityQueue<Node> lowCostPath = new PriorityQueue<Node>();
+        lowCostPath.add(new Node(word1, 0));
         
-        int pathWeight = 0; // Starting path weight
-        
-        while (!empty) {
-            // Get the node's neighbors
-            ArrayList<String> neighbors = (ArrayList<String>) graph.getNeighbors(curr.node);
-            
+        while (!lowCostPath.isEmpty()) {
+            // Get next best node
+            curr = lowCostPath.poll();
+            // If the destination was added to the list
+            if (curr.node.equals(word2))
+                return generatePath(curr); // Generates path starting with last node
             // Add all unchecked neighbors
-            for (String neighbor : neighbors) {
+            for (String neighbor : (ArrayList<String>) graph.getNeighbors(curr.node)) {
                 int index = vertices.indexOf(neighbor);
                 // Fist found index will always be shortest path to that index,
                 // So no need to check for other indexes or update the path
@@ -229,25 +227,8 @@ public class GraphProcessor {
                     lowCostPath.add(newNode); // Add to priority queue
                 }
             }
-            visited.add(curr); // Add to visited after all neighbors are put in
-            // If the destination was added to the list
-            if (curr.node.equals(word2)) {
-                // Generates path starting with last node
-                // Visited may have some unnecessary nodes,
-                // So we need to make the correct path
-                List<String> path = generatePath(visited.get(visited.size() - 1));
-                return path;
-            }
-            // If it isn't empty
-            if (!lowCostPath.isEmpty()) {
-                // Get next best node
-                curr = lowCostPath.poll();
-                // Increment path weight (since all are unweighed)
-                pathWeight++;
-            }
-            // Iterate at end to guarantee one run through of loop
-            else
-                empty = true;
+            // Increment path weight (since all are unweighed)
+            pathWeight++;
         }
         return null; // Impossible to reach
     }
