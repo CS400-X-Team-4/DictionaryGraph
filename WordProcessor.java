@@ -134,7 +134,7 @@ public class WordProcessor {
      */
     private static boolean isAddition(String word1, String word2) {
         for (int i = 0; i < word1.length(); i++) {
-            if (word2.charAt(i) != word1.charAt(i)) // Always happen once
+            if (word2.charAt(i) != word1.charAt(i)) // If char not appended, always happens once
                 return word1.equals(word2.substring(0, i) + word2.substring(i + 1));
         }
         return true; // If you go through entire string, addition must be at end
@@ -153,15 +153,11 @@ public class WordProcessor {
      *         Whether or not it passes all the tests
      */
     private static boolean isSubstitution(String word1, String word2) {
-        boolean sub = false; // Tells us the offset. If > 1, then false
         // word1 must be same size as word2
         for (int i = 0; i < word1.length(); i++) {
-            if (word2.charAt(i) != word1.charAt(i)) {
-                if (sub) // Already had one substitution
-                    return false;
-                sub = true; // First substitution
-            }
+            if (word2.charAt(i) != word1.charAt(i))
+                return (word1.substring(0, i) + word1.substring(i + 1)).equals(word2.substring(0, i) + word2.substring(i + 1));
         }
-        return sub; // Must be true to pass
+        return false; // If reached, then literally the same word
     }
 }
