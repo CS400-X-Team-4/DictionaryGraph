@@ -97,6 +97,8 @@ public class Graph<E> implements GraphADT<E> {
      */
     @Override
     public boolean addEdge(E vertex1, E vertex2) {
+        if (vertex1 == null || vertex2 == null)
+            return false;
         // Get start and end points
         int startPoint = vertices.indexOf(vertex1);
         int endPoint = vertices.indexOf(vertex2);
@@ -115,6 +117,8 @@ public class Graph<E> implements GraphADT<E> {
      */
     @Override
     public boolean removeEdge(E vertex1, E vertex2) {
+        if (vertex1 == null || vertex2 == null)
+            return false;
         // Get start and end points
         int startPoint = vertices.indexOf(vertex1);
         int endPoint = vertices.indexOf(vertex2);
@@ -133,6 +137,8 @@ public class Graph<E> implements GraphADT<E> {
      */
     @Override
     public boolean isAdjacent(E vertex1, E vertex2) {
+        if (vertex1 == null || vertex2 == null)
+            return false;
         // Get start and end points
         int startPoint = vertices.indexOf(vertex1);
         int endPoint = vertices.indexOf(vertex2);
@@ -149,6 +155,8 @@ public class Graph<E> implements GraphADT<E> {
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<E> getNeighbors(E vertex) {
+        if (vertex == null)
+            return null;
         ArrayList<E> neighbors = new ArrayList<E>();
         int i = vertices.indexOf(vertex);
         if (i == -1) // If DNE
