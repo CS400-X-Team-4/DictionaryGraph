@@ -118,7 +118,6 @@ public class WordProcessor {
         else if (dif == -1)
             return isAddition(word1, word2);
         return false;
-        
     }
     
     /**
