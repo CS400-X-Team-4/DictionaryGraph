@@ -156,7 +156,8 @@ public class WordProcessor {
         // word1 must be same size as word2
         for (int i = 0; i < word1.length(); i++) {
             if (word2.charAt(i) != word1.charAt(i))
-                return (word1.substring(0, i) + word1.substring(i + 1)).equals(word2.substring(0, i) + word2.substring(i + 1));
+                // Only need to check latter half cause first half is always the same
+                return word1.substring(i + 1).equals(word2.substring(i + 1));
         }
         return false; // If reached, then literally the same word
     }
