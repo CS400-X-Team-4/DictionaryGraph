@@ -82,33 +82,61 @@ public class GraphProcessorTest {
         String[][][] paths = {
                 {
                         null,
+                        null,
                         { "AT", "BAT", "BIT" },
                         { "AT", "BAT" },
                         { "AT", "BAT", "BAIT" },
+                        { "AT", "BAT", "BIT", "BITS" },
+                        null
+                },
+                {
+                        null,
+                        null,
+                        { "AT", "BAT", "BIT" },
+                        { "AT", "BAT" },
+                        { "AT", "BAT", "BAIT" },
+                        { "AT", "BAT", "BIT", "BITS" },
                         null
                 },
                 {
                         { "BIT", "BAT", "AT" },
+                        { "BIT", "BAT", "AT" },
                         null,
                         { "BIT", "BAT" },
                         { "BIT", "BAIT" },
+                        { "BIT", "BITS" },
                         null
                 },
                 {
                         { "BAT", "AT" },
+                        { "BAT", "AT" },
                         { "BAT", "BIT" },
                         null,
                         { "BAT", "BAIT" },
+                        { "BAT", "BIT", "BITS" },
                         null
                 },
                 {
                         { "BAIT", "BAT", "AT" },
+                        { "BAIT", "BAT", "AT" },
                         { "BAIT", "BIT" },
                         { "BAIT", "BAT" },
+                        null,
+                        { "BAIT", "BIT", "BITS" },
+                        null
+                },
+                {
+                        { "BITS", "BIT", "BAT", "AT" },
+                        { "BITS", "BIT", "BAT", "AT" },
+                        { "BITS", "BIT" },
+                        { "BITS", "BIT", "BAT" },
+                        { "BITS", "BIT", "BAIT" },
                         null,
                         null
                 },
                 {
+                        null,
+                        null,
                         null,
                         null,
                         null,
@@ -129,7 +157,7 @@ public class GraphProcessorTest {
                         exLen = -1;
                     acLen = gProc.getShortestDistance(words.get(i), words.get(j));
                     if (exLen != acLen)
-                        fail("Expected Size: " + exLen + "\nGot: " + acLen);
+                        fail("Expected Size: " + exLen + "\nGot: " + acLen + "\n" + words.get(i) + " " + words.get(j));
                     if ((acPath == null && exPath != null) || (acPath != null && exPath == null))
                         fail("Paths don't match nulls");
                     else if (acPath != null && exPath != null) {

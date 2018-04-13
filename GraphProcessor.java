@@ -130,12 +130,14 @@ public class GraphProcessor {
      */
     public List<String> getShortestPath(String word1, String word2) {
         ArrayList<String> vertices = ((ArrayList<String>) graph.getAllVertices());
+        // .toUpperCase in case input is lower case
         int startPoint = vertices.indexOf(word1.toUpperCase());
         int endPoint = vertices.indexOf(word2.toUpperCase());
+        // If either points don't exist, return null
+        // Otherwise, return the path if it exists
         if (startPoint == -1 || endPoint == -1)
             return null;
         return shortestPaths[startPoint][endPoint];
-        
     }
     
     /**
@@ -209,7 +211,7 @@ public class GraphProcessor {
         boolean[] inPos = new boolean[vertices.size()]; // Integer Position
         // Gets the node with the highest priority
         PriorityQueue<Node> lowCostPath = new PriorityQueue<Node>();
-        lowCostPath.add(new Node(word1, 0));
+        lowCostPath.add(new Node(word1, 0)); // Just so we run through at least once
         
         while (!lowCostPath.isEmpty()) {
             // Get next best node
