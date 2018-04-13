@@ -1,6 +1,9 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.junit.After;
@@ -38,41 +41,28 @@ public class GraphProcessorTest {
     
     private GraphProcessor gProc;
     private WordProcessor wdProc;
-    
-    private static List<String> vertices;
-    
-    private static int numOfVertices = 0;
+    private String file;
     
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        vertices = new ArrayList<>();
-        vertices.add("at");
-        vertices.add("it");
-        vertices.add("cat");
-        vertices.add("hat");
-        vertices.add("hot");
-        vertices.add("rat");
-        vertices.add("dog");
-        for (String vertex : vertices)
-            numOfVertices++;
     }
     
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        vertices = null;
-        numOfVertices = 0;
     }
     
     @Before
     public void setUp() throws Exception {
         gProc = new GraphProcessor();
         wdProc = new WordProcessor();
+        file = "exDict.txt";
     }
     
     @After
     public void tearDown() throws Exception {
         gProc = null;
         wdProc = null;
+        file = null;
     }
     
     // INSERT TESTS HERE:
@@ -81,22 +71,86 @@ public class GraphProcessorTest {
      * 
      */
     @Test
-    public final void buildGraph() {
-        gProc.populateGraph("exDict.txt");
-        String[] expected1 = { "it", "at", "cat", "cut", "cute", "cuter" };
-        int expected2 = 5;
+    public final void fullGraphTest() {
+        gProc.populateGraph(file);
+        String[] exPath;
+        List<String> acPath;
+        int exLen;
+        int acLen;
         
-        List<String> actual1 = gProc.getShortestPath("it", "cuter");
-        int actual2 = gProc.getShortestDistance("it", "cuter");
+        String[][][] paths = {
+                {
+                        null,
+                        { "AT", "BAT", "BIT" },
+                        { "AT", "BAT" },
+                        { "AT", "BAT", "BAIT" },
+                        null
+                },
+                {
+                        { "BIT", "BAT", "AT" },
+                        null,
+                        { "BIT", "BAT" },
+                        { "BIT", "BAIT" },
+                        null
+                },
+                {
+                        { "BAT", "AT" },
+                        { "BAT", "BIT" },
+                        null,
+                        { "BAT", "BAIT" },
+                        null
+                },
+                {
+                        { "BAIT", "BAT", "AT" },
+                        { "BAIT", "BIT" },
+                        { "BAIT", "BAT" },
+                        null,
+                        null
+                },
+                {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                }
+        };
         
-        assertEquals("Expected path distance: " + expected2 + "\nActual path distance: " + actual2, expected2, actual2);
-        for (int i = 0; i < actual1.size(); i++) {
-            assertEquals("Expected: " + expected1[i].toUpperCase() + "\nActual: " + actual1.get(i), expected1[i].toUpperCase(), actual1.get(i));
+        try {
+            List<String> words = Files.readAllLines(Paths.get("exDict.txt"));
+            for (int i = 0; i < words.size(); i++) {
+                for (int j = 0; j < words.size(); j++) {
+                    exPath = paths[i][j];
+                    acPath = gProc.getShortestPath(words.get(i), words.get(j));
+                    if (paths[i][j] != null)
+                        exLen = paths[i][j].length - 1;
+                    else
+                        exLen = -1;
+                    acLen = gProc.getShortestDistance(words.get(i), words.get(j));
+                    if (exLen != acLen)
+                        fail("Expected Size: " + exLen + "\nGot: " + acLen);
+                    if ((acPath == null && exPath != null) || (acPath != null && exPath == null))
+                        fail("Paths don't match nulls");
+                    else if (acPath != null && exPath != null) {
+                        for (int k = 0; k < exPath.length; k++) {
+                            assertEquals("Index: " + k + "\nExpected item: " + exPath[k] + "\nGot: " + acPath.get(k), exPath[k], acPath.get(k));
+                        }
+                    }
+                    
+                }
+            }
         }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            fail("Could not read file");
+        }
+        
     }
     
     @Test
     public final void test() {
         assertEquals("0 != 0", 0, 0);
+        
     }
 }

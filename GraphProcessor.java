@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -19,9 +21,6 @@ import java.util.PriorityQueue;
 //
 // Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
 // Bugs:             no known bugs, but not complete either
-//// Other Source:     (1) Floyd-Warshall algorithm: 
-//                       - https://goo.gl/Pnr7bg (Wikipedia)
-//                       - https://goo.gl/7p6LSL 
 //
 // 2018 Apr 16, 2018 GraphProcessor.java 
 ////////////////////////////80 columns wide //////////////////////////////////
@@ -69,11 +68,6 @@ public class GraphProcessor {
      */
     public GraphProcessor() {
         this.graph = new Graph<>();
-        vMap = new Hashtable<String, Integer>();
-        iMap = new Hashtable<Integer, String>();
-        MaxDistance = Integer.MAX_VALUE;
-        distanceMatrix = new Integer[graphSize][graphSize];
-        predecessor = new Integer[graphSize][graphSize];
     }
     
     /**
@@ -94,16 +88,14 @@ public class GraphProcessor {
     public Integer populateGraph(String filepath) {
         int size = 0;
         try {
-            Object[] words = WordProcessor.getWordStream(filepath).toArray();
-            for (int i = 0; i < words.length; i++) { // For each word
-                graph.addVertex((String) words[i]); // Add word into the graph
-                for (int j = 0; j < i; j++) { // Then compare with other words in graph
-                    if (WordProcessor.isAdjacent((String) words[i], (String) words[j])) { // If adjacent, add an edge
-                        graph.addEdge((String) words[i], (String) words[j]);
-                    }
+            Iterator<String> words = WordProcessor.getWordStream(filepath).iterator();
+            while (words.hasNext()) {
+                String word1 = words.next();
+                graph.addVertex(word1);
+                for (String word2 : graph.getAllVertices()) {
+                    if (WordProcessor.isAdjacent(word1, word2))
+                        graph.addEdge(word1, word2);
                 }
-            }
-            for (String vertex : graph.getAllVertices()) {
                 size++;
             }
             shortestPaths = (List<String>[][]) (new List<?>[size][size]);
@@ -141,6 +133,8 @@ public class GraphProcessor {
         ArrayList<String> vertices = ((ArrayList<String>) graph.getAllVertices());
         int startPoint = vertices.indexOf(word1);
         int endPoint = vertices.indexOf(word2);
+        if (startPoint == -1 || endPoint == -1)
+            return null;
         return shortestPaths[startPoint][endPoint];
         
     }
@@ -203,7 +197,6 @@ public class GraphProcessor {
      * @return
      */
     private List<String> shortestPathComp(String word1, String word2, ArrayList<String> vertices) {
-        // System.out.println("Finding shortest path between " + word1 + " and " + word2);
         /*
          * For Dijkstra's Algorithm to work:
          * 1. Calculate the weight of all current neighbors or change optimal weight
@@ -215,7 +208,8 @@ public class GraphProcessor {
         boolean empty = false;
         List<Node> visited = new ArrayList<Node>(); // Optimal Path
         // Checks if already visited
-        List<Integer> inPos = new ArrayList<Integer>(); // Integer Position
+        boolean[] inPos = new boolean[vertices.size()]; // Integer Position
+        Arrays.fill(inPos, false);
         // Gets the node with the highest priority
         PriorityQueue<Node> lowCostPath = new PriorityQueue<Node>();
         
@@ -230,30 +224,25 @@ public class GraphProcessor {
                 int index = vertices.indexOf(neighbor);
                 // Fist found index will always be shortest path to that index,
                 // So no need to check for other indexes or update the path
-                if (!inPos.contains(index)) {
-                    inPos.add(index); // Add to checked
+                if (!inPos[index]) {
+                    inPos[index] = true; // Add to checked
                     Node newNode = new Node(neighbor, curr, pathWeight + 1);
                     lowCostPath.add(newNode); // Add to priority queue
                 }
             }
             visited.add(curr); // Add to visited after all neighbors are put in
-            // for (Node n : visited) {
-            // System.out.println(n.toString());
-            // }
             // If the destination was added to the list
             if (curr.node.equals(word2)) {
                 // Generates path starting with last node
                 // Visited may have some unnecessary nodes,
                 // So we need to make the correct path
                 List<String> path = generatePath(visited.get(visited.size() - 1));
-                // System.out.println("Found path\n");
                 return path;
             }
             // If it isn't empty
             if (!lowCostPath.isEmpty()) {
                 // Get next best node
                 curr = lowCostPath.poll();
-                // System.out.println("Next Node: " + curr.node + "\n");
                 // Increment path weight (since all are unweighed)
                 pathWeight++;
             }
@@ -318,11 +307,17 @@ public class GraphProcessor {
             this.cost = cost;
         }
         
+        /**
+         * Compares two nodes based on their costs
+         */
         @Override
         public int compareTo(Node o) {
             return cost - o.cost;
         }
         
+        /**
+         * Test method for debugging
+         */
         @Override
         public String toString() {
             if (parent != null)

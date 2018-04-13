@@ -155,17 +155,14 @@ public class Graph<E> implements GraphADT<E> {
             return null;
         // Loop through all vertices to see if they are neighbors
         for (int j = 0; j < vertices.size(); j++) {
-            if (i == j) // If same vertex
-                continue; // Not really necessary. No self loops
             if (edges.get(i).get(j)) // If they are adjacent
                 neighbors.add(vertices.get(j));
         }
         E[] n2 = (E[]) neighbors.toArray();
         neighbors.clear();
         Arrays.sort(n2);
-        for (E neighbor : n2) {
+        for (E neighbor : n2)
             neighbors.add(neighbor);
-        }
         return neighbors; // Return array in natural order
     }
     
