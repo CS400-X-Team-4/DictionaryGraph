@@ -43,7 +43,6 @@ public class WordProcessor {
      * @throws IOException
      *             exception resulting from accessing the filepath
      */
-    @SuppressWarnings("resource")
     public static Stream<String> getWordStream(String filepath) throws IOException {
         /**
          * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/Files.html">java.nio.file.Files</a>
@@ -87,15 +86,11 @@ public class WordProcessor {
          *      Note: since map and filter return the updated Stream objects, they can chained together as:
          *      streamOfLines.map(...).filter(a -> ...).map(...) and so on
          */
-        Stream<String> stream;
-        stream = Files.lines(Paths.get(filepath));
-        stream = stream.filter(x -> x != "").map(String::toUpperCase).map(String::trim);
-        
+        Stream<String> stream = Files.lines(Paths.get(filepath)).map(String::toUpperCase).map(String::trim).filter(x -> x != null && x != "");
         return stream;
     }
     
     /**
-     * @Author Collin Dedrick
      * Adjacency between word1 and word2 is defined by:
      * if the difference between word1 and word2 is of
      * 1 char replacement
@@ -115,9 +110,14 @@ public class WordProcessor {
      * @return true if word1 and word2 are adjacent else false
      */
     public static boolean isAdjacent(String word1, String word2) {
-        if (word1.length() > word2.length())
+        int dif = word1.length() - word2.length();
+        if (dif == 1)
             return isAddition(word2, word1);
-        return (isAddition(word1, word2) || isSubstitution(word1, word2));
+        else if (dif == 0)
+            return isSubstitution(word1, word2);
+        else if (dif == -1)
+            return isAddition(word1, word2);
+        return false;
         
     }
     
@@ -136,18 +136,15 @@ public class WordProcessor {
     private static boolean isAddition(String word1, String word2) {
         int charOffset = 0; // Tells us the offset. If > 1, then false
         // word2 must be one bigger than word1
-        if (word1.length() - word2.length() == -1) {
-            for (int i = 0; i < word1.length(); i++) {
-                if (word2.charAt(i + charOffset) != word1.charAt(i)) {
-                    if (charOffset++ > 0)
-                        return false; // Had a substitution
-                    i--;
-                }
+        for (int i = 0; i < word1.length(); i++) {
+            if (word2.charAt(i + charOffset) != word1.charAt(i)) {
+                if (charOffset++ > 0)
+                    return false; // Had a substitution
+                i--;
             }
-            // If charOffset == 0, added letter must be at the end
-            return true; // Passed all tests
         }
-        return false;
+        // If charOffset == 0, added letter must be at the end
+        return true; // Passed all tests
     }
     
     /**
@@ -165,13 +162,11 @@ public class WordProcessor {
     private static boolean isSubstitution(String word1, String word2) {
         boolean sub = false; // Tells us the offset. If > 1, then false
         // word1 must be same size as word2
-        if (word1.length() - word2.length() == 0) {
-            for (int i = 0; i < word1.length(); i++) {
-                if (word2.charAt(i) != word1.charAt(i)) {
-                    if (sub) // Already had one substitution
-                        return false;
-                    sub = true; // First substitution
-                }
+        for (int i = 0; i < word1.length(); i++) {
+            if (word2.charAt(i) != word1.charAt(i)) {
+                if (sub) // Already had one substitution
+                    return false;
+                sub = true; // First substitution
             }
         }
         return sub; // Must be true to pass
