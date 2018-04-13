@@ -85,6 +85,7 @@ public class GraphProcessor {
      *            file path to the dictionary
      * @return Integer the number of vertices (words) added
      */
+    @SuppressWarnings("unchecked")
     public Integer populateGraph(String filepath) {
         int size = 0;
         try {
@@ -128,11 +129,9 @@ public class GraphProcessor {
      * @return List<String> list of the words
      */
     public List<String> getShortestPath(String word1, String word2) {
-        word1 = word1.toUpperCase();
-        word2 = word2.toUpperCase();
         ArrayList<String> vertices = ((ArrayList<String>) graph.getAllVertices());
-        int startPoint = vertices.indexOf(word1);
-        int endPoint = vertices.indexOf(word2);
+        int startPoint = vertices.indexOf(word1.toUpperCase());
+        int endPoint = vertices.indexOf(word2.toUpperCase());
         if (startPoint == -1 || endPoint == -1)
             return null;
         return shortestPaths[startPoint][endPoint];
