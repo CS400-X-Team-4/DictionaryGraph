@@ -41,7 +41,6 @@ import org.junit.Test;
 public class GraphProcessorTest {
     
     private GraphProcessor gProc;
-    private WordProcessor wdProc;
     private String f1, f2;
     
     @BeforeClass
@@ -55,7 +54,6 @@ public class GraphProcessorTest {
     @Before
     public void setUp() throws Exception {
         gProc = new GraphProcessor();
-        wdProc = new WordProcessor();
         f1 = "exDict.txt";
         f2 = "largeDict.txt";
     }
@@ -63,7 +61,6 @@ public class GraphProcessorTest {
     @After
     public void tearDown() throws Exception {
         gProc = null;
-        wdProc = null;
         f1 = null;
         f2 = null;
     }
