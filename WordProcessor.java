@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -8,6 +10,7 @@ import java.util.stream.Stream;
 //                   GraphProcessor.java
 //                   GraphTest.java
 //                   WordProcessor.java
+//                   GraphProcessorTest.java
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
@@ -84,12 +87,11 @@ public class WordProcessor {
          *      Note: since map and filter return the updated Stream objects, they can chained together as:
          *      streamOfLines.map(...).filter(a -> ...).map(...) and so on
          */
-        
-        return null;
+        Stream<String> stream = Files.lines(Paths.get(filepath)).map(String::toUpperCase).map(String::trim).filter(x -> x != null && x != "");
+        return stream;
     }
     
     /**
-     * @Author Collin Dedrick
      * Adjacency between word1 and word2 is defined by:
      * if the difference between word1 and word2 is of
      * 1 char replacement
@@ -109,45 +111,56 @@ public class WordProcessor {
      * @return true if word1 and word2 are adjacent else false
      */
     public static boolean isAdjacent(String word1, String word2) {
-        if(Math.abs(word1.length()-word2.length()) > 1) {
-            return false; //requires at least two add/del
-        }
-        if(word1.length()==word2.length()) {
-            //words are equal length, only adjacent through sub
-            int count = 0;
-            for(int i=0;i<word1.length();i++) {
-                if(word1.charAt(i)!=word2.charAt(i)) {count++;}
-            }
-            return (count==1); //exactly one sub is required, dups return false
-        }
-        //Words are one character different in size, require an add/del
-        String longWord, shortWord;
-        if(word1.length() > word2.length()) {
-            longWord = word1;
-            shortWord = word2;
-        } else {
-            longWord = word2;
-            shortWord = word1;
-        }
-        
-        // If statement isn't necessary, but looks good otherwise
-        if(longWord.substring(0,longWord.length()-1).equals(shortWord)) {
-            return true; //Prevents IndexOutOfBoundsException in the for loop
-        }
-        boolean flag = false;
-        int j = 0;
-        for(int i=0;i<shortWord.length();i++) {
-            if(longWord.charAt(j)!=shortWord.charAt(i)) {
-                if(flag) {
-                    return false;
-                } else {
-                    flag = true;
-                    i--;
-                }
-            }
-            j++;
-        }
-        return true;
+        int dif = word1.length() - word2.length();
+        if (dif == 1)
+            return isAddition(word2, word1);
+        else if (dif == 0)
+            return isSubstitution(word1, word2);
+        else if (dif == -1)
+            return isAddition(word1, word2);
+        return false;
+        // return (dif == 1) ? isAddition(word2, word1) : ((dif == 0) ? isSubstitution(word1, word2) : ((dif == -1) ? isAddition(word1, word2) : false));
     }
     
+    /**
+     * Should test:
+     * 1. Length of words
+     * 2. Character Offset (<= 1)
+     * 
+     * @param word1
+     *            The first word. Assumed smaller word
+     * @param word2
+     *            The second word. Assumed larger word
+     * @return
+     *         Whether or not it passes all the tests
+     */
+    private static boolean isAddition(String word1, String word2) {
+        for (int i = 0; i < word1.length(); i++) {
+            if (word2.charAt(i) != word1.charAt(i)) // If char not appended, always happens once
+                return word1.equals(word2.substring(0, i) + word2.substring(i + 1));
+        }
+        return true; // If you go through entire string, addition must be at end
+    }
+    
+    /**
+     * Should test:
+     * 1. Length of words
+     * 2. Character Offset (== 1)
+     * 
+     * @param word1
+     *            The first word
+     * @param word2
+     *            The second word
+     * @return
+     *         Whether or not it passes all the tests
+     */
+    private static boolean isSubstitution(String word1, String word2) {
+        // word1 must be same size as word2
+        for (int i = 0; i < word1.length(); i++) {
+            if (word2.charAt(i) != word1.charAt(i))
+                // Only need to check latter half cause first half is always the same
+                return word1.substring(i + 1).equals(word2.substring(i + 1));
+        }
+        return false; // If reached, then literally the same word
+    }
 }

@@ -16,6 +16,8 @@ import org.junit.Test;
 //                   GraphProcessor.java
 //                   GraphTest.java
 //                   WordProcessor.java
+//                   GraphProcessorTest.java
+
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
@@ -46,6 +48,7 @@ public class GraphTest {
     public static void setUpBeforeClass() throws Exception {
         vertices = new ArrayList<>();
         vertices.add("at");
+        vertices.add("ate");
         vertices.add("it");
         vertices.add("cat");
         vertices.add("hat");

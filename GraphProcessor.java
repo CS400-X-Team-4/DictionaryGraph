@@ -1,15 +1,17 @@
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
+import java.util.PriorityQueue;
 
 ////////////////////////////////////////////////////////////////////////////
 // Semester:         CS400 Spring 2018
 // PROJECT:          cs400_p3_201801
 // FILES:            Graph.java
-// GraphProcessor.java
-// GraphTest.java
-// WordProcessor.java
+//                   GraphProcessor.java
+//                   GraphTest.java
+//                   WordProcessor.java
+//                   GraphProcessorTest.java
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
@@ -19,9 +21,6 @@ import java.util.Stack;
 //
 // Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
 // Bugs:             no known bugs, but not complete either
-//// Other Source:     (1) Floyd-Warshall algorithm: 
-//                       - https://goo.gl/Pnr7bg (Wikipedia)
-//                       - https://goo.gl/7p6LSL 
 //
 // 2018 Apr 16, 2018 GraphProcessor.java 
 ////////////////////////////80 columns wide //////////////////////////////////
@@ -61,23 +60,14 @@ public class GraphProcessor {
      * Graph which stores the dictionary words and their associated connections
      */
     private GraphADT<String> graph;
-    Hashtable<String, Integer> vMap;
-    Hashtable<Integer, String> iMap;
-    Integer graphSize;
-    Integer MaxDistance;
-    Integer[][] distanceMatrix;  // store the shortest distance between two vertices
-    Integer[][] predecessor;     // store the predecessor index
+    // index i = Start word, j = End word
+    private List<String>[][] shortestPaths;
     
     /**
      * Constructor for this class. Initializes instances variables to set the starting state of the object
      */
     public GraphProcessor() {
         this.graph = new Graph<>();
-        vMap = new Hashtable<String, Integer>();
-        iMap = new Hashtable<Integer, String>();
-        MaxDistance = Integer.MAX_VALUE;
-        distanceMatrix = new Integer[graphSize][graphSize];
-        predecessor = new Integer[graphSize][graphSize];
     }
     
     /**
@@ -95,8 +85,27 @@ public class GraphProcessor {
      *            file path to the dictionary
      * @return Integer the number of vertices (words) added
      */
+    @SuppressWarnings("unchecked")
     public Integer populateGraph(String filepath) {
-        return 0;
+        int size = 0;
+        try {
+            Iterator<String> words = WordProcessor.getWordStream(filepath).iterator();
+            while (words.hasNext()) {
+                String word1 = words.next();
+                graph.addVertex(word1);
+                for (String word2 : graph.getAllVertices()) {
+                    if (WordProcessor.isAdjacent(word1, word2))
+                        graph.addEdge(word1, word2);
+                }
+                size++;
+            }
+            shortestPaths = (List<String>[][]) (new List<?>[size][size]);
+            shortestPathPrecomputation();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return size;
         
     }
     
@@ -120,20 +129,15 @@ public class GraphProcessor {
      * @return List<String> list of the words
      */
     public List<String> getShortestPath(String word1, String word2) {
-        // Look up the predecessor matrix to find the shortest path
-        shortestPathPrecomputation();
-    	int i = this.vMap.get(word1);
-    	int j = this.vMap.get(word2);
-    	Stack<String> st = new Stack<String>();
-    	List<String> pathList = new ArrayList<String>();
-    	st.add(word2);  // destination
-    	while (predecessor[i][j] != -1) {
-    		j = predecessor[i][j];
-    		String v = this.iMap.get(j);
-    		st.add(v);
-    	}
-    	pathList.add(st.pop());
-        return pathList; 
+        ArrayList<String> vertices = ((ArrayList<String>) graph.getAllVertices());
+        // .toUpperCase in case input is lower case
+        int startPoint = vertices.indexOf(word1.toUpperCase());
+        int endPoint = vertices.indexOf(word2.toUpperCase());
+        // If either points don't exist, return null
+        // Otherwise, return the path if it exists
+        if (startPoint == -1 || endPoint == -1)
+            return null;
+        return shortestPaths[startPoint][endPoint];
     }
     
     /**
@@ -143,7 +147,7 @@ public class GraphProcessor {
      * cat
      * rat
      * hat
-     * neat
+     * heat
      * wheat
      * kit
      * distance of the shortest path between cat and wheat, [cat, hat, heat, wheat]
@@ -156,26 +160,11 @@ public class GraphProcessor {
      * @return Integer distance
      */
     public Integer getShortestDistance(String word1, String word2) {
-        // Look up distanceMatrix to get shortest distance
-        shortestPathPrecomputation();
-    	int i = this.vMap.get(word1);
-    	int j = this.vMap.get(word2);
-        return this.distanceMatrix[i][j];
-    }
-    
-    /**
-     * Get all vertices, and map each vertex to an index
-     */
-    private void buildVerticesMapping() {
-    	Iterable<String> allVertices = this.graph.getAllVertices();
-    	int size = 0;
-    	while ( allVertices.iterator().hasNext() ) {
-    		allVertices.iterator().next();
-    		this.vMap.put(allVertices.iterator().toString(), size);  // [key, index]
-    		this.iMap.put(size, allVertices.iterator().toString());  // [index, key]
-    		size++;
-    	}
-    	this.graphSize = size;
+        List<String> shortestPath = getShortestPath(word1, word2);
+        if (shortestPath == null) // If no path, return -1
+            return -1;
+        // Always one less edge compared to nodes in this path
+        return shortestPath.size() - 1;
     }
     
     /**
@@ -184,44 +173,140 @@ public class GraphProcessor {
      * Any shortest path algorithm can be used (Djikstra's or Floyd-Warshall recommended).
      */
     public void shortestPathPrecomputation() {
-        // Using Floyd-Warshall algorithm
-    	buildVerticesMapping();
-    	int len = this.graphSize;
-    	
-    	// Set up: d to self is 0, to adjacent vertex is 1, unreachable is infinity
-    	//         pred to self and unreachable is -1, otherwise is i 
-    	for (int i = 0; i < len; i ++) {
-    		for (int j = 0; j < len; j ++) {
-    			if (i == j ) {
-    				distanceMatrix[i][j] = 0;
-    				predecessor[i][j] = -1;
-    			} else if (graph.isAdjacent(this.iMap.get(i), this.iMap.get(j))){
-    				distanceMatrix[i][j] = 1;
-    				distanceMatrix[j][i] = 1;
-    				predecessor[i][j] = i; 
-    			} else { // not adjacent vertex
-    				distanceMatrix[i][j] = MaxDistance;
-    				distanceMatrix[j][i] = MaxDistance;
-    				predecessor[i][j] = -1; 
-    			}
-    		}
-    	}
-    	
-    	// Main loop: if find the shorter path, update d to distanceMatrix and update predecessor
-    	for (int k = 0; k < len; k++) {
-    		for (int i = 0; i < len; i++) {
-    			for (int j = 0; j < len; j++) {
-    				if ((distanceMatrix[i][k] == MaxDistance) 
-    					    || (distanceMatrix[k][j] == MaxDistance)) {
-    					continue;
-    				}
-    				if ((distanceMatrix[i][j] > distanceMatrix[i][k] + distanceMatrix[k][j])
-    						&& (distanceMatrix[i][k] != MaxDistance)) {
-    					distanceMatrix[i][j] = distanceMatrix[i][k] + distanceMatrix[k][j];
-    					predecessor[i][j] = predecessor[k][j];
-    				}
-    			}
-    		}
-    	}
+        ArrayList<String> vertices = ((ArrayList<String>) graph.getAllVertices());
+        // For each vertex, calculate the shortest distance between it and all other vertices
+        for (int i = 0; i < vertices.size(); i++) {
+            for (int j = 0; j < vertices.size(); j++) {
+                // If not the same vertex
+                if (!vertices.get(i).equals(vertices.get(j))) // Add into array
+                    shortestPaths[i][j] = shortestPathComp(vertices.get(i), vertices.get(j), vertices);
+            }
+        }
+    }
+    
+    /**
+     * Private method that uses Dijkstra's Algorithm
+     * To calculate the shortest path from A to B
+     * Will be calculating for shortestPathPrecomputation()
+     * 
+     * @param word1
+     *            Starting point
+     * @param word2
+     *            Ending Point
+     * @param vertices
+     *            To use to check against if it's been visited or not
+     * @return
+     */
+    private List<String> shortestPathComp(String word1, String word2, ArrayList<String> vertices) {
+        /*
+         * For Dijkstra's Algorithm to work:
+         * 1. Calculate the weight of all current neighbors or change optimal weight
+         * 2. Mark current path visited
+         * 3. Choose path with smallest weight
+         * 4. Repeat until destination is in visited
+         */
+        Node curr;
+        int pathWeight = 0; // Starting path weight
+        // Checks if already visited
+        boolean[] inPos = new boolean[vertices.size()]; // Integer Position
+        // Gets the node with the highest priority
+        PriorityQueue<Node> lowCostPath = new PriorityQueue<Node>();
+        lowCostPath.add(new Node(word1, 0)); // Just so we run through at least once
+        
+        while (!lowCostPath.isEmpty()) {
+            // Get next best node
+            curr = lowCostPath.poll();
+            // If the destination was added to the list
+            if (curr.node.equals(word2))
+                return generatePath(curr); // Generates path starting with last node
+            // Add all unchecked neighbors
+            for (String neighbor : (ArrayList<String>) graph.getNeighbors(curr.node)) {
+                int index = vertices.indexOf(neighbor);
+                // Fist found index will always be shortest path to that index,
+                // So no need to check for other indexes or update the path
+                if (!inPos[index]) {
+                    inPos[index] = true; // Add to checked
+                    Node newNode = new Node(neighbor, curr, pathWeight + 1);
+                    lowCostPath.add(newNode); // Add to priority queue
+                }
+            }
+            // Increment path weight (since all are unweighed)
+            pathWeight++;
+        }
+        return null; // Impossible to reach
+    }
+    
+    /**
+     * Generates the list of nodes inside the shortest path
+     * 
+     * @param visited
+     *            The destination node
+     * @return
+     *         The shortest path
+     */
+    private List<String> generatePath(Node visited) {
+        List<String> path = new ArrayList<String>();
+        addNodeToPath(path, visited); // Start Recursion
+        return path;
+    }
+    
+    /**
+     * Recursive method to add nodes to the path
+     * 
+     * @param path
+     *            The shortest path from A to B
+     * @param visited
+     *            The current node
+     */
+    private void addNodeToPath(List<String> path, Node visited) {
+        if (visited != null) {
+            // Work "bottom" up to build path correctly
+            addNodeToPath(path, visited.parent);
+            // Then add the node
+            path.add(visited.node);
+        }
+    }
+    
+    /**
+     * Private class for Dijkstra's Algorithm
+     * 
+     * @author andreweng
+     *
+     */
+    private class Node implements Comparable<Node> {
+        String node; // Name of the vertex
+        Node parent; // The parent of the vertex; where it came from
+        int cost; // The cost to reach this node
+        
+        public Node(String node, int cost) {
+            this.node = node;
+            parent = null;
+            this.cost = cost;
+        }
+        
+        public Node(String node, Node parent, int cost) {
+            this.node = node;
+            this.parent = parent;
+            this.cost = cost;
+        }
+        
+        /**
+         * Compares two nodes based on their costs
+         */
+        @Override
+        public int compareTo(Node o) {
+            return cost - o.cost;
+        }
+        
+        /**
+         * Test method for debugging
+         */
+        @Override
+        public String toString() {
+            if (parent != null)
+                return "Node: " + node + "\nParent: " + parent.node + "\nCost: " + cost + "\n";
+            else
+                return "Node: " + node + "\nParent: null\nCost: " + cost + "\n";
+        }
     }
 }

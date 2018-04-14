@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 ////////////////////////////////////////////////////////////////////////////
 // Semester:         CS400 Spring 2018
@@ -7,6 +8,8 @@ import java.util.ArrayList;
 //                   GraphProcessor.java
 //                   GraphTest.java
 //                   WordProcessor.java
+//                   GraphProcessorTest.java
+
 //
 // USER:             ateng@wisc.edu
 //                   tfiedler2@wisc.edu
@@ -96,6 +99,8 @@ public class Graph<E> implements GraphADT<E> {
      */
     @Override
     public boolean addEdge(E vertex1, E vertex2) {
+        if (vertex1 == null || vertex2 == null)
+            return false;
         // Get start and end points
         int startPoint = vertices.indexOf(vertex1);
         int endPoint = vertices.indexOf(vertex2);
@@ -114,6 +119,8 @@ public class Graph<E> implements GraphADT<E> {
      */
     @Override
     public boolean removeEdge(E vertex1, E vertex2) {
+        if (vertex1 == null || vertex2 == null)
+            return false;
         // Get start and end points
         int startPoint = vertices.indexOf(vertex1);
         int endPoint = vertices.indexOf(vertex2);
@@ -132,6 +139,8 @@ public class Graph<E> implements GraphADT<E> {
      */
     @Override
     public boolean isAdjacent(E vertex1, E vertex2) {
+        if (vertex1 == null || vertex2 == null)
+            return false;
         // Get start and end points
         int startPoint = vertices.indexOf(vertex1);
         int endPoint = vertices.indexOf(vertex2);
@@ -145,20 +154,26 @@ public class Graph<E> implements GraphADT<E> {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Iterable<E> getNeighbors(E vertex) {
+        if (vertex == null)
+            return null;
         ArrayList<E> neighbors = new ArrayList<E>();
         int i = vertices.indexOf(vertex);
         if (i == -1) // If DNE
             return null;
         // Loop through all vertices to see if they are neighbors
         for (int j = 0; j < vertices.size(); j++) {
-            if (i == j) // If same vertex
-                continue;
             if (edges.get(i).get(j)) // If they are adjacent
                 neighbors.add(vertices.get(j));
         }
-        return neighbors; // Return array
+        E[] n2 = (E[]) neighbors.toArray();
+        neighbors.clear();
+        Arrays.sort(n2);
+        for (E neighbor : n2)
+            neighbors.add(neighbor);
+        return neighbors; // Return array in natural order
     }
     
     /**
