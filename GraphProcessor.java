@@ -62,7 +62,7 @@ public class GraphProcessor {
     private GraphADT<String> graph;
     // index i = Start word, j = End word
     private List<String>[][] shortestPaths;
-    private int size;
+    private int size; // Number of vertices in the graph
     
     /**
      * Constructor for this class. Initializes instances variables to set the starting state of the object
@@ -94,23 +94,24 @@ public class GraphProcessor {
             Iterator<String> words = WordProcessor.getWordStream(filepath).iterator();
             while (words.hasNext()) {
                 String word1 = words.next();
-                String result = graph.addVertex(word1);
-                if (result != null) {
+                String result = graph.addVertex(word1); // Result checks for dup
+                if (result != null) { // If not a duplicate
+                    // Create edges between new vertex and other vertices
                     for (String word2 : graph.getAllVertices()) {
                         if (WordProcessor.isAdjacent(word1, word2))
                             graph.addEdge(word1, word2);
                     }
-                    addedVert++;
+                    addedVert++; // Shouldn't change if vertex wasn't actually added
                 }
             }
-            size += addedVert;
+            size += addedVert; // Update size
             shortestPaths = (List<String>[][]) (new List<?>[size][size]);
-            shortestPathPrecomputation();
+            shortestPathPrecomputation(); // Run precomp after updated vertices
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return addedVert;
+        return addedVert; // The number of vertices added
         
     }
     
@@ -265,7 +266,7 @@ public class GraphProcessor {
      */
     private void addNodeToPath(List<String> path, Node visited) {
         if (visited != null) {
-            // Work "bottom" up to build path correctly
+            // Work "bottom up" to build path correctly
             addNodeToPath(path, visited.parent);
             // Then add the node
             path.add(visited.node);
