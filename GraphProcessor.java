@@ -94,12 +94,14 @@ public class GraphProcessor {
             Iterator<String> words = WordProcessor.getWordStream(filepath).iterator();
             while (words.hasNext()) {
                 String word1 = words.next();
-                graph.addVertex(word1);
-                for (String word2 : graph.getAllVertices()) {
-                    if (WordProcessor.isAdjacent(word1, word2))
-                        graph.addEdge(word1, word2);
+                String result = graph.addVertex(word1);
+                if (result != null) {
+                    for (String word2 : graph.getAllVertices()) {
+                        if (WordProcessor.isAdjacent(word1, word2))
+                            graph.addEdge(word1, word2);
+                    }
+                    addedVert++;
                 }
-                addedVert++;
             }
             size += addedVert;
             shortestPaths = (List<String>[][]) (new List<?>[size][size]);
