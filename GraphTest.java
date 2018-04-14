@@ -356,4 +356,39 @@ public class GraphTest {
         assertEquals("num of vertices in the graph", numOfVertices - 2, verticesCount);
     }
     
+    @Test
+    public final void addRemoveAll() {
+        for (String word1 : vertices) {
+            graph.addVertex(word1);
+            for (String word2 : graph.getAllVertices()) {
+                if (WordProcessor.isAdjacent(word1, word2))
+                    graph.addEdge(word1, word2);
+            }
+        }
+        ArrayList<String> nodes = (ArrayList<String>) graph.getAllVertices();
+        for (int i = 0; i < vertices.size(); i++) {
+            assertEquals("Graph vertices does not match added vertices", vertices.get(i), nodes.get(i));
+            ArrayList<String> neighbors = (ArrayList<String>) graph.getNeighbors(nodes.get(i));
+            for (String word : vertices) {
+                if (WordProcessor.isAdjacent(nodes.get(i), word)) {
+                    assertEquals("Graph does not include an edge between two adjacent nodes (" + nodes.get(i) + " and " + word + ")", neighbors.contains(word), true);
+                }
+                else {
+                    assertEquals("Graph includes an extra edge between two non-adjacent nodes (" + nodes.get(i) + " and " + word + ")", neighbors.contains(word), false);
+                }
+            }
+        }
+        while (!vertices.isEmpty()) {
+            int remove = (int) Math.random() * vertices.size();
+            graph.removeVertex(nodes.remove(remove));
+            for (String word : nodes) {
+                if (WordProcessor.isAdjacent(vertices.get(remove), word)) {
+                    ArrayList<String> n = (ArrayList<String>) graph.getNeighbors(word);
+                    assertEquals("Graph still contains edge with a removed node", n.contains(vertices.get(remove)), false);
+                }
+            }
+            vertices.remove(remove);
+        }
+    }
+    
 }

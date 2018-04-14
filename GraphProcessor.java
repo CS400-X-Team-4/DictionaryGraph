@@ -62,12 +62,14 @@ public class GraphProcessor {
     private GraphADT<String> graph;
     // index i = Start word, j = End word
     private List<String>[][] shortestPaths;
+    private int size;
     
     /**
      * Constructor for this class. Initializes instances variables to set the starting state of the object
      */
     public GraphProcessor() {
         this.graph = new Graph<>();
+        size = 0;
     }
     
     /**
@@ -87,7 +89,7 @@ public class GraphProcessor {
      */
     @SuppressWarnings("unchecked")
     public Integer populateGraph(String filepath) {
-        int size = 0;
+        int addedVert = 0;
         try {
             Iterator<String> words = WordProcessor.getWordStream(filepath).iterator();
             while (words.hasNext()) {
@@ -97,15 +99,16 @@ public class GraphProcessor {
                     if (WordProcessor.isAdjacent(word1, word2))
                         graph.addEdge(word1, word2);
                 }
-                size++;
+                addedVert++;
             }
+            size += addedVert;
             shortestPaths = (List<String>[][]) (new List<?>[size][size]);
             shortestPathPrecomputation();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return size;
+        return addedVert;
         
     }
     
