@@ -239,4 +239,33 @@ public class GraphProcessorTest {
     	}	
     }
 
+    @Test
+    public final void testWordProc() {
+        String[] exString = { "at", "ate", "bat", "ad", "aid" };
+        // Tests for each case of adjacency
+        // Addition:
+        // - At End (at -> ate)
+        // - At Beginning (at -> bat)
+        // - In Middle (ad -> aid)
+        // Subtraction:
+        // - At End (ate -> at)
+        // - At Beginning (bat -> at)
+        // - In Middle (aid -> ad)
+        // Substitution:
+        // - at -> ad
+        boolean[][] exEdgeMap = {
+                { false, true, true, true, false },
+                { true, false, false, false, false },
+                { true, false, false, false, false },
+                { true, false, false, false, true },
+                { false, false, false, true, false }
+        };
+        for (int i = 0; i < exString.length; i++) {
+            for (int j = 0; j < exString.length; j++) {
+                boolean expected = exEdgeMap[i][j];
+                boolean got = WordProcessor.isAdjacent(exString[i], exString[j]);
+                assertEquals("Got unexpected result:\nExpected: " + expected + "\nGot: " + got + "\nFor: " + exString[i] + ", " + exString[j] + "\n", got, expected);
+            }
+        }
+    }
 }
