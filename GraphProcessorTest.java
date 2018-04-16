@@ -4,7 +4,9 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -41,7 +43,8 @@ import org.junit.Test;
 public class GraphProcessorTest {
     
     private GraphProcessor gProc;
-    private String f1, f2;
+    private WordProcessor wProc;
+    private String f1, f2, f3;
     
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -54,8 +57,10 @@ public class GraphProcessorTest {
     @Before
     public void setUp() throws Exception {
         gProc = new GraphProcessor();
+        wProc = new WordProcessor();
         f1 = "exDict.txt";
         f2 = "largeDict.txt";
+        f3 = "exDict_needTrim.txt";
     }
     
     @After
@@ -193,12 +198,45 @@ public class GraphProcessorTest {
     @Test
     public final void addDup() {
         gProc.populateGraph(f1);
-        
         assertEquals("Allowed Duplicates", gProc.getShortestPath("at", "at"), null);
     }
     
+    
     @Test
-    public final void test() {
-        
+    public final void getEachElement() {
+    	try { 
+    		String[] expect = { "AT", "AT", "BIT", "BAT", "BAIT", "BITS", "DOG" };
+    		Stream<String> stream = wProc.getWordStream(f1);
+    		String[] result = stream.toArray(String[]::new);
+    		// Check length
+    		assertEquals("Length not match, expected is "+ expect.length + ", actual is " + result.length,
+    				expect.length, result.length);
+    		//  Check elements
+    		for ( int i = 0 ; i < expect.length ; i++) {
+    			assertEquals("Element "+i+" is not equal. ("+expect[i]+","+result[i]+")",
+    					expect[i], result[i]);
+    		}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
+    
+    
+    @Test
+    public final void wProcTrim() {
+    	try {
+        	String[] expect = { "AT", "BIT", "BAT", "BAIT", "BITS", "DOG" };
+        	Stream<String> stream = wProc.getWordStream(f3);
+    		String[] result = stream.toArray(String[]::new);
+    		assertEquals("Length not match, expected is "+ expect.length + ", actual is " + result.length,
+    				expect.length, result.length);
+    		for ( int i = 0 ; i < expect.length ; i++) {
+    			assertEquals("Element "+i+" is not equal. ("+expect[i]+","+result[i]+")",
+    					expect[i], result[i]);
+    		}
+    	} catch(IOException e) {
+    		e.printStackTrace();
+    	}	
+    }
+
 }
