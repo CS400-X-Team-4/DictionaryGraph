@@ -4,9 +4,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,8 +41,7 @@ import org.junit.Test;
 public class GraphProcessorTest {
     
     private GraphProcessor gProc;
-    private WordProcessor wProc;
-    private String f1, f2, f3;
+    private String f1, f2;
     
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -57,10 +54,8 @@ public class GraphProcessorTest {
     @Before
     public void setUp() throws Exception {
         gProc = new GraphProcessor();
-        wProc = new WordProcessor();
         f1 = "exDict.txt";
         f2 = "largeDict.txt";
-        f3 = "exDict_needTrim.txt";
     }
     
     @After
@@ -198,45 +193,37 @@ public class GraphProcessorTest {
     @Test
     public final void addDup() {
         gProc.populateGraph(f1);
+        
         assertEquals("Allowed Duplicates", gProc.getShortestPath("at", "at"), null);
     }
     
-    
     @Test
-    public final void getEachElement() {
-    	try { 
-    		String[] expect = { "AT", "AT", "BIT", "BAT", "BAIT", "BITS", "DOG" };
-    		Stream<String> stream = wProc.getWordStream(f1);
-    		String[] result = stream.toArray(String[]::new);
-    		// Check length
-    		assertEquals("Length not match, expected is "+ expect.length + ", actual is " + result.length,
-    				expect.length, result.length);
-    		//  Check elements
-    		for ( int i = 0 ; i < expect.length ; i++) {
-    			assertEquals("Element "+i+" is not equal. ("+expect[i]+","+result[i]+")",
-    					expect[i], result[i]);
-    		}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    public final void testWordProc() {
+        String[] exString = { "at", "ate", "bat", "ad", "aid" };
+        // Tests for each case of adjacency
+        // Addition:
+        // - At End (at -> ate)
+        // - At Beginning (at -> bat)
+        // - In Middle (ad -> aid)
+        // Subtraction:
+        // - At End (ate -> at)
+        // - At Beginning (bat -> at)
+        // - In Middle (aid -> ad)
+        // Substitution:
+        // - at -> ad
+        boolean[][] exEdgeMap = {
+                { false, true, true, true, false },
+                { true, false, false, false, false },
+                { true, false, false, false, false },
+                { true, false, false, false, true },
+                { false, false, false, true, false }
+        };
+        for (int i = 0; i < exString.length; i++) {
+            for (int j = 0; j < exString.length; j++) {
+                boolean expected = exEdgeMap[i][j];
+                boolean got = WordProcessor.isAdjacent(exString[i], exString[j]);
+                assertEquals("Got unexpected result:\nExpected: " + expected + "\nGot: " + got + "\nFor: " + exString[i] + ", " + exString[j] + "\n", got, expected);
+            }
+        }
     }
-    
-    
-    @Test
-    public final void wProcTrim() {
-    	try {
-        	String[] expect = { "AT", "BIT", "BAT", "BAIT", "BITS", "DOG" };
-        	Stream<String> stream = wProc.getWordStream(f3);
-    		String[] result = stream.toArray(String[]::new);
-    		assertEquals("Length not match, expected is "+ expect.length + ", actual is " + result.length,
-    				expect.length, result.length);
-    		for ( int i = 0 ; i < expect.length ; i++) {
-    			assertEquals("Element "+i+" is not equal. ("+expect[i]+","+result[i]+")",
-    					expect[i], result[i]);
-    		}
-    	} catch(IOException e) {
-    		e.printStackTrace();
-    	}	
-    }
-
 }
