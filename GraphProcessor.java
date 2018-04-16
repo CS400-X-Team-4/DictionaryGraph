@@ -62,12 +62,14 @@ public class GraphProcessor {
     private GraphADT<String> graph;
     // index i = Start word, j = End word
     private List<String>[][] shortestPaths;
+    private int size; // Number of vertices in the graph
     
     /**
      * Constructor for this class. Initializes instances variables to set the starting state of the object
      */
     public GraphProcessor() {
         this.graph = new Graph<>();
+        size = 0;
     }
     
     /**
@@ -87,25 +89,29 @@ public class GraphProcessor {
      */
     @SuppressWarnings("unchecked")
     public Integer populateGraph(String filepath) {
-        int size = 0;
+        int addedVert = 0;
         try {
             Iterator<String> words = WordProcessor.getWordStream(filepath).iterator();
             while (words.hasNext()) {
                 String word1 = words.next();
-                graph.addVertex(word1);
-                for (String word2 : graph.getAllVertices()) {
-                    if (WordProcessor.isAdjacent(word1, word2))
-                        graph.addEdge(word1, word2);
+                String result = graph.addVertex(word1); // Result checks for dup
+                if (result != null) { // If not a duplicate
+                    // Create edges between new vertex and other vertices
+                    for (String word2 : graph.getAllVertices()) {
+                        if (WordProcessor.isAdjacent(word1, word2))
+                            graph.addEdge(word1, word2);
+                    }
+                    addedVert++; // Shouldn't change if vertex wasn't actually added
                 }
-                size++;
             }
+            size += addedVert; // Update size
             shortestPaths = (List<String>[][]) (new List<?>[size][size]);
-            shortestPathPrecomputation();
+            shortestPathPrecomputation(); // Run precomp after updated vertices
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return size;
+        return addedVert; // The number of vertices added
         
     }
     
@@ -260,7 +266,7 @@ public class GraphProcessor {
      */
     private void addNodeToPath(List<String> path, Node visited) {
         if (visited != null) {
-            // Work "bottom" up to build path correctly
+            // Work "bottom up" to build path correctly
             addNodeToPath(path, visited.parent);
             // Then add the node
             path.add(visited.node);

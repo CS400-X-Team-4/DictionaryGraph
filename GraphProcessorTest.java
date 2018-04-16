@@ -41,8 +41,7 @@ import org.junit.Test;
 public class GraphProcessorTest {
     
     private GraphProcessor gProc;
-    private WordProcessor wdProc;
-    private String file;
+    private String f1, f2;
     
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -55,15 +54,15 @@ public class GraphProcessorTest {
     @Before
     public void setUp() throws Exception {
         gProc = new GraphProcessor();
-        wdProc = new WordProcessor();
-        file = "exDict.txt";
+        f1 = "exDict.txt";
+        f2 = "largeDict.txt";
     }
     
     @After
     public void tearDown() throws Exception {
         gProc = null;
-        wdProc = null;
-        file = null;
+        f1 = null;
+        f2 = null;
     }
     
     // INSERT TESTS HERE:
@@ -73,7 +72,7 @@ public class GraphProcessorTest {
      */
     @Test
     public final void fullGraphTest() {
-        gProc.populateGraph(file);
+        gProc.populateGraph(f1);
         String[] exPath;
         List<String> acPath;
         int exLen;
@@ -178,14 +177,22 @@ public class GraphProcessorTest {
     }
     
     @Test
-    public final void popGraph() {
-        gProc.populateGraph(file);
+    public final void popMultiGraph() {
+        gProc.populateGraph(f1);
+        gProc.populateGraph(f2);
+        
+        String[] expect = { "BAT", "AT", "AD", "AID", "AVID" };
+        List<String> act = gProc.getShortestPath("bat", "avid");
+        if (expect.length != act.size())
+            fail("Did not return the same path");
+        for (int i = 0; i < expect.length; i++) {
+            assertEquals("Dif word in path: (" + act.get(i) + " vs " + expect[i] + ")", act.get(i), expect[i]);
+        }
     }
     
     @Test
     public final void addDup() {
-        gProc.populateGraph(file);
-        gProc.populateGraph(file);
+        gProc.populateGraph(f1);
         
         assertEquals("Allowed Duplicates", gProc.getShortestPath("at", "at"), null);
     }
