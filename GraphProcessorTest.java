@@ -238,21 +238,5 @@ public class GraphProcessorTest {
     		e.printStackTrace();
     	}	
     }
-    /*
-    @Test
-    public final void sameWordPath() {
-    	gProc.populateGraph(f1);
-    	List<String> actual = gProc.getShortestPath("bat", "bat");
-    	String[] expected = null;
-    	assertEquals("Different word in path: (" + actual + "vs" + expected + ")", expected, actual);
-    }
-    
-    @Test
-    public final void sameWordDistcance() {
-    	gProc.populateGraph(f1);
-    	int actual = gProc.getShortestDistance("bat", "bat");
-    	int expected = -1;
-    	assertEquals("Different distance: " + actual + "vs" + expected, expected, actual);
-    }
-    */
+
 }
