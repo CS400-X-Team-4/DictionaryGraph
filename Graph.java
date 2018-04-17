@@ -91,7 +91,8 @@ public class Graph<E> implements GraphADT<E> {
         // because order is not edited
         for (ArrayList<Boolean> edge : edges)
             edge.remove(i); // Removes vertex column
-        return vertices.remove(i); // Removes vertex from array of vertices
+        vertices.remove(i); // Removes vertex from array of vertices
+        return vertex;
     }
     
     /**
@@ -182,6 +183,21 @@ public class Graph<E> implements GraphADT<E> {
     @Override
     public Iterable<E> getAllVertices() {
         return vertices;
+    }
+    
+    @Override
+    public String toString() {
+        String s = "Words: \t";
+        for (int i = 0; i < vertices.size(); i++)
+            s += vertices.get(i) + "\t";
+        s += "\n";
+        for (int i = 0; i < vertices.size(); i++) {
+            s += vertices.get(i) + ":\t";
+            for (Boolean b : edges.get(i))
+                s += b + "\t";
+            s += "\n";
+        }
+        return s;
     }
     
 }
